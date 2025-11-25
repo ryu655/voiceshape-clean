@@ -1,6 +1,6 @@
 Flask==3.0.3
 flask-cors==4.0.1
-openai-whisper==20240930  # ← 最新版に変更（3.13対応）
+openai-whisper==20231117  # ← 20240930 → 20231117に変更（3.13完全対応）
 librosa==0.10.1
 tqdm==4.66.5
 torch==2.3.1
