@@ -1,0 +1,490 @@
+/* VoiceShape.jp - Responsive Styles */
+
+/* Tablet Styles (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 90%;
+    }
+    
+    .hero {
+        padding: 5rem 0;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.125rem;
+    }
+    
+    .viz-panels {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .education-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+    :root {
+        --radius-lg: 0.5rem;
+        --radius-xl: 0.75rem;
+    }
+    
+    /* Container adjustments */
+    .container {
+        padding: 0 1rem;
+    }
+    
+    /* Header mobile optimization */
+    .header-content {
+        padding: 0.75rem 0;
+    }
+    
+    .logo h1 {
+        font-size: 1.25rem;
+    }
+    
+    .lang-switch {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Hero section mobile */
+    .hero {
+        padding: 3rem 0;
+        text-align: left;
+    }
+    
+    .hero-title {
+        font-size: 1.75rem;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .btn {
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        justify-content: center;
+    }
+    
+    /* Upload section mobile */
+    .upload-section {
+        padding: 2rem 0;
+    }
+    
+    .dropzone {
+        padding: 2rem 1rem;
+        border-radius: var(--radius-lg);
+    }
+    
+    .dropzone-content i {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .dropzone-content h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.375rem;
+    }
+    
+    .dropzone-content p {
+        font-size: 0.875rem;
+        margin-bottom: 0.125rem;
+    }
+    
+    .dropzone-content small {
+        font-size: 0.75rem;
+    }
+    
+    /* Visualization mobile */
+    .visualization-section {
+        padding: 2rem 0;
+    }
+    
+    .viz-header {
+        flex-direction: column;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .viz-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .viz-controls {
+        justify-content: center;
+    }
+    
+    .viz-panels {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .waveform-panel,
+    .spectrum-panel {
+        padding: 1rem;
+    }
+    
+    .waveform-panel canvas,
+    .spectrum-panel canvas {
+        height: 150px;
+    }
+    
+    /* Subtitles mobile */
+    .subtitles-section {
+        padding: 2rem 0;
+    }
+    
+    .subtitles-container h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .subtitles-display {
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+    }
+    
+    .subtitle-item {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 0;
+    }
+    
+    .subtitle-time {
+        min-width: auto;
+        font-size: 0.875rem;
+    }
+    
+    /* Education mobile */
+    .education-section {
+        padding: 2rem 0;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .education-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .education-card {
+        padding: 1.5rem;
+    }
+    
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .education-card h4 {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Pricing mobile */
+    .pricing-section {
+        padding: 2rem 0;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .pricing-card {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+    }
+    
+    .popular-badge {
+        font-size: 0.75rem;
+        padding: 0.125rem 0.75rem;
+    }
+    
+    .card-header h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .amount {
+        font-size: 2.5rem;
+    }
+    
+    .currency {
+        font-size: 1.25rem;
+    }
+    
+    .features {
+        margin-bottom: 1.5rem;
+    }
+    
+    .features li {
+        padding: 0.375rem 0;
+        font-size: 0.875rem;
+    }
+    
+    /* Footer mobile */
+    .footer {
+        padding: 2rem 0 0.75rem;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .footer-section h4 {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .footer-section ul li {
+        margin-bottom: 0.375rem;
+    }
+    
+    .footer-section a {
+        font-size: 0.875rem;
+    }
+    
+    .footer-bottom {
+        padding-top: 1.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Small mobile (max-width: 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 0.75rem;
+    }
+    
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .dropzone {
+        padding: 1.5rem 0.75rem;
+    }
+    
+    .viz-panels {
+        gap: 1rem;
+    }
+    
+    .waveform-panel,
+    .spectrum-panel {
+        padding: 0.75rem;
+    }
+    
+    .waveform-panel canvas,
+    .spectrum-panel canvas {
+        height: 120px;
+    }
+    
+    .pricing-card {
+        padding: 1.25rem;
+    }
+    
+    .amount {
+        font-size: 2rem;
+    }
+    
+    .currency {
+        font-size: 1rem;
+    }
+    
+    .education-card {
+        padding: 1.25rem;
+    }
+}
+
+/* Large desktop (min-width: 1440px) */
+@media (min-width: 1440px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .hero {
+        padding: 8rem 0;
+    }
+    
+    .hero-title {
+        font-size: 4rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .viz-panels {
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+    
+    .education-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+}
+
+/* Ultra-wide screens (min-width: 1920px) */
+@media (min-width: 1920px) {
+    .container {
+        max-width: 1600px;
+    }
+    
+    .hero {
+        padding: 10rem 0;
+    }
+    
+    .hero-title {
+        font-size: 4.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.75rem;
+    }
+    
+    .viz-container {
+        max-width: 1200px;
+    }
+    
+    .waveform-panel canvas,
+    .spectrum-panel canvas {
+        height: 250px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .btn:active {
+        transform: scale(0.98);
+    }
+    
+    .dropzone:hover {
+        border-color: var(--border-color);
+        background: var(--bg-primary);
+    }
+    
+    .dropzone:active {
+        border-color: var(--primary-color);
+        background: var(--bg-secondary);
+    }
+    
+    .pricing-card:hover {
+        transform: none;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .education-card:hover {
+        transform: none;
+        box-shadow: var(--shadow-md);
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body {
+        font-weight: 400;
+    }
+    
+    .hero-title {
+        font-weight: 600;
+    }
+    
+    .btn {
+        font-weight: 500;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .pricing-card:hover,
+    .education-card:hover {
+        transform: none;
+    }
+}
+
+/* Dark mode responsive adjustments */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+    .dropzone {
+        background: var(--bg-secondary);
+    }
+    
+    .waveform-panel,
+    .spectrum-panel {
+        background: var(--bg-secondary);
+    }
+    
+    .subtitles-display {
+        background: var(--bg-secondary);
+    }
+    
+    .pricing-card {
+        background: var(--bg-secondary);
+    }
+    
+    .education-card {
+        background: var(--bg-secondary);
+    }
+}

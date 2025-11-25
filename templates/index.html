@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceShape.jp - 音声をアップするだけでAIが言葉を認識</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
+        #langSwitch { background: rgba(255,255,255,0.1); border: 2px solid #60a5fa; border-radius: 50px; padding: 8px 16px; color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #langSwitch:hover { background: #60a5fa; }
+
+        /* 結果エリア：左右50:50・絶対に崩れない */
+        #resultArea {
+            display: none;
+            padding: 60px 0;
+            background: #0f172a;
+        }
+        #resultArea .wrapper {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 70px;
+            align-items: flex-start;
+        }
+        #resultArea .left-panel {
+            flex: 1;
+            min-width: 0;
+        }
+        #resultArea .right-panel {
+            flex: 1;
+            min-width: 0;
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 50px;
+            border: 5px solid #60a5fa;
+            box-shadow: 0 0 70px rgba(96,165,250,0.8);
+        }
+        #resultArea .viz-box {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #475569;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            margin-bottom: 50px;
+        }
+        #resultArea .viz-box:last-child { margin-bottom: 0; }
+        #resultArea h3 {
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+        #resultArea .subtitle-title {
+            font-size: 36px;
+            margin-bottom: 45px;
+        }
+        #resultArea .download-buttons {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+        #resultArea .download-buttons button {
+            padding: 20px 55px;
+            margin: 0 20px;
+            background: #475569;
+            color: white;
+            border: none;
+            border-radius: 22px;
+            cursor: pointer;
+            font-size: 21px;
+            font-weight: bold;
+        }
+        #subtitlesDisplay {
+            max-height: 720px;
+            overflow-y: auto;
+            text-align: left;
+            line-height: 2.2;
+            font-size: 18px;
+            padding: 35px 50px;
+            background: rgba(15,23,42,0.98);
+            border-radius: 22px;
+        }
+        canvas { width: 100% !important; height: 280px !important; background: #0f172a; border-radius: 16px; }
+    </style>
+</head>
+<body class="lang-ja">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>VoiceShape.jp</h1>
+                </div>
+                <nav class="nav">
+                    <button class="lang-switch" id="langSwitch">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">日本語</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-lang="ja">音声をアップするだけで、AIがどうやって「言葉」を認識してるか目に見える。</h1>
+                <h1 class="hero-title" data-lang="en" style="display: none;">Upload audio and see how AI recognizes "words" visually.</h1>
+
+                <h2 class="hero-subtitle" data-lang="ja">5分までは永久無料。6分以上になったら今回だけ500円 or 月980円</h2>
+                <h2 class="hero-subtitle" data-lang="en" style="display: none;">5 minutes forever free. For longer, ¥500 one-time or ¥980/month unlimited.</h2>
+
+                <div class="cta-buttons">
+                    <button class="btn btn-primary" id="startNowBtn">今すぐ始める</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- File Upload Section -->
+    <section class="upload-section" id="uploadSection">
+        <div class="container">
+            <div class="upload-container">
+                <div class="dropzone" id="dropzone">
+                    <div class="dropzone-content">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3 data-lang="ja">音声ファイルをドラッグ＆ドロップ</h3>
+                        <h3 data-lang="en" style="display: none;">Drag & Drop Audio File</h3>
+                        <p data-lang="ja">またはクリックしてファイルを選択</p>
+                        <p data-lang="en" style="display: none;">Or click to select file</p>
+                        <small data-lang="ja">対応形式: MP3, WAV, M4A, FLAC (最大500MB)</small>
+                        <small data-lang="en" style="display: none;">Supported: MP3, WAV, M4A, FLAC (max 500MB)</small>
+                    </div>
+                    <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- 結果エリア（最初から全部表示・隠さない！） -->
+<section id="resultArea" style="padding:60px 0; background:#0f172a; display:block !important;">
+    <div style="max-width:1900px; margin:0 auto; padding:0 5%; display:flex; gap:70px; align-items:stretch;">
+
+        <!-- 左側：波形＋スペクトラム（最初から表示） -->
+        <div style="flex:1; min-width:0; display:grid; grid-template-rows:1fr 1fr; gap:50px;">
+            <!-- 波形 -->
+            <div style="background:#0f172a; border-radius:20px; padding:30px; border:2px solid #475569; box-shadow:0 15px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column;">
+                <h3 style="color:#60a5fa; text-align:center; margin-bottom:20px; font-size:24px;">
+                    <span data-lang="ja">波形表示</span>
+                    <span data-lang="en" style="display:none;">Waveform</span>
+                </h3>
+                <canvas id="waveformCanvas" style="flex:1; width:100%; min-height:0; background:#0f172a; border-radius:16px;"></canvas>
+            </div>
+
+            <!-- スペクトラム -->
+            <div style="background:#0f172a; border-radius:20px; padding:30px; border:2px solid #475569; box-shadow:0 15px 40px rgba(0,0,0,0.7); display:flex; flex-direction:column;">
+                <h3 style="color:#60a5fa; text-align:center; margin-bottom:20px; font-size:24px;">
+                    <span data-lang="ja">スペクトラム分析</span>
+                    <span data-lang="en" style="display:none;">Spectrum Analysis</span>
+                </h3>
+                <canvas id="spectrumCanvas" style="flex:1; width:100%; min-height:0; background:#0f172a; border-radius:16px;"></canvas>
+            </div>
+        </div>
+
+        <!-- 右側：字幕（最初から表示・超ミニマル） -->
+        <div style="flex:1; min-width:0; background:#0f172a; border-radius:24px; padding:35px 45px; border:4px solid #60a5fa; box-shadow:0 0 60px rgba(96,165,250,0.7);">
+            <h3 style="color:#60a5fa; text-align:center; font-size:22px; margin:0 0 15px 0; font-weight:bold;">
+                <span data-lang="ja">生成された字幕</span>
+                <span data-lang="en" style="display:none;">Generated Subtitles</span>
+            </h3>
+
+            <div style="text-align:center; margin-bottom:14px;">
+                <button onclick="app.downloadSRT()" style="padding:7px 18px; margin:0 6px; background:#475569; color:white; border:none; border-radius:10px; cursor:pointer; font-size:14px;">
+                    SRT
+                </button>
+                <button onclick="app.downloadTXT()" style="padding:7px 18px; margin:0 6px; background:#475569; color:white; border:none; border-radius:10px; cursor:pointer; font-size:14px;">
+                    TXT
+                </button>
+            </div>
+
+            <div id="subtitlesDisplay" style="max-height:380px; overflow-y:auto; text-align:left; line-height:1.9; font-size:16px; padding:16px 25px; background:rgba(15,23,42,0.98); border-radius:14px;">
+                <!-- 字幕ここに入る -->
+            </div>
+        </div>
+    </div>
+</section>
+<!-- 下固定プレーヤー → スクロールと一緒に動く + アイコン化 -->
+<div id="fixedPlayer" style="position:sticky; bottom:0; left:0; width:100%; background:linear-gradient(135deg,#1e293b,#0f172a); border-top:5px solid #60a5fa; padding:20px 40px; box-shadow:0 -10px 40px rgba(0,0,0,0.7); z-index:999; display:none;">
+    <div style="max-width:1600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; color:white;">
+
+        <!-- ファイル名＋時間 -->
+        <div>
+            <div id="playerFilename" style="font-weight:bold; color:#60a5fa; font-size:20px;">filename.mp3</div>
+            <div id="playerTime" style="color:#94a3b8; font-size:16px;">00:00 / 00:00</div>
+        </div>
+
+        <!-- 再生コントロール（アイコン化） -->
+        <div style="display:flex; align-items:center; gap:25px;">
+            <button id="playPauseFixed" style="width:60px; height:60px; background:#475569; color:white; border:none; border-radius:50%; font-size:28px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.5); transition:all 0.3s;">
+                <i class="fas fa-play"></i>
+            </button>
+            <button id="stopFixed" style="width:60px; height:60px; background:#475569; color:white; border:none; border-radius:50%; font-size:28px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.5);">
+                <i class="fas fa-stop"></i>
+            </button>
+        </div>
+
+        <!-- 速度＋音量 -->
+        <div style="display:flex; align-items:center; gap:25px;">
+            <select id="speedSelect" style="background:#334155; color:white; border:none; padding:12px 18px; border-radius:16px; font-size:16px;">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2.0x</option>
+            </select>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-volume-up" style="color:#60a5fa; font-size:20px;"></i>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" style="width:140px; height:8px; background:#334155; border-radius:4px; outline:none;">
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Education Section -->
+    <section class="education-section">
+        <div class="container">
+            <h3 class="section-title" data-lang="ja">音声認識の仕組み</h3>
+            <h3 class="section-title" data-lang="en" style="display: none;">How Speech Recognition Works</h3>
+
+            <div class="education-grid">
+                <div class="education-card">
+                    <div class="card-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+                    <h4 data-lang="ja">音声圧縮・特徴抽出</h4>
+                    <h4 data-lang="en" style="display: none;">Audio Compression & Feature Extraction</h4>
+                    <p data-lang="ja">音声はまず圧縮され、AIが聞き取りやすい形に変換されます。</p>
+                    <p data-lang="en" style="display: none;">Audio is compressed and transformed into a format easy for AI to understand.</p>
+                </div>
+                <div class="education-card">
+                    <div class="card-icon"><i class="fas fa-brain"></i></div>
+                    <h4 data-lang="ja">Whisper AIが言葉を理解</h4>
+                    <h4 data-lang="en" style="display: none;">Whisper AI Understands Speech</h4>
+                    <p data-lang="ja">大規模言語モデルが音の特徴から日本語を正確に認識します。</p>
+                    <p data-lang="en" style="display: none;">Large language model accurately recognizes Japanese from audio features.</p>
+                </div>
+                <div class="education-card">
+                    <div class="card-icon"><i class="fas fa-eye"></i></div>
+                    <h4 data-lang="ja">リアルタイムで可視化</h4>
+                    <h4 data-lang="en" style="display: none;">Real-time Visualization</h4>
+                    <p data-lang="ja">波形・スペクトラム・字幕が同期して「AIの目線」を体験。</p>
+                    <p data-lang="en" style="display: none;">Waveform, spectrum, and subtitles sync to experience "AI's perspective".</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section">
+        <div class="container">
+            <h3 class="section-title" data-lang="ja">料金プラン</h3>
+            <h3 class="section-title" data-lang="en" style="display: none;">Pricing Plans</h3>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <h4 data-lang="ja">Free</h4>
+                        <h4 data-lang="en" style="display: none;">Free</h4>
+                        <div class="price"><span class="currency">¥</span><span class="amount">0</span></div>
+                    </div>
+                    <ul class="features">
+                        <li data-lang="ja">5分まで無制限</li>
+                        <li data-lang="en" style="display: none;">Up to 5 minutes unlimited</li>
+                        <li data-lang="ja">簡易波形表示</li>
+                        <li data-lang="en" style="display: none;">Basic waveform display</li>
+                        <li data-lang="ja">ウォーターマーク付き</li>
+                        <li data-lang="en" style="display: none;">With watermark</li>
+                    </ul>
+                    <button class="btn btn-outline" id="freeBtn">今すぐ始める</button>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="popular-badge" data-lang="ja">人気</div>
+                    <div class="popular-badge" data-lang="en" style="display: none;">Popular</div>
+                    <div class="card-header">
+                        <h4 data-lang="ja">Spot</h4>
+                        <h4 data-lang="en" style="display: none;">Spot</h4>
+                        <div class="price"><span class="currency">¥</span><span class="amount">500</span></div>
+                        <p class="period" data-lang="ja">1回きり</p>
+                        <p class="period" data-lang="en" style="display: none;">One-time</p>
+                    </div>
+                    <ul class="features">
+                        <li data-lang="ja">最大60分</li>
+                        <li data-lang="en" style="display: none;">Up to 60 minutes</li>
+                        <li data-lang="ja">72時間使い放題</li>
+                        <li data-lang="en" style="display: none;">72 hours unlimited</li>
+                        <li data-lang="ja">全機能解放</li>
+                        <li data-lang="en" style="display: none;">All features unlocked</li>
+                    </ul>
+                    <button class="btn btn-primary" id="spotBtn">購入する</button>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="card-header">
+                        <h4 data-lang="ja">Pro</h4>
+                        <h4 data-lang="en" style="display: none;">Pro</h4>
+                        <div class="price"><span class="currency">¥</span><span class="amount">980</span></div>
+                        <p class="period" data-lang="ja">月額</p>
+                        <p class="period" data-lang="en" style="display: none;">Monthly</p>
+                    </div>
+                    <ul class="features">
+                        <li data-lang="ja">完全無制限</li>
+                        <li data-lang="en" style="display: none;">Completely unlimited</li>
+                        <li data-lang="ja">ウォーターマークなし</li>
+                        <li data-lang="en" style="display: none;">No watermark</li>
+                        <li data-lang="ja">優先処理</li>
+                        <li data-lang="en" style="display: none;">Priority processing</li>
+                    </ul>
+                    <button class="btn btn-outline" id="proBtn">申し込む</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4 data-lang="ja">VoiceShape.jp</h4>
+                    <h4 data-lang="en" style="display: none;">VoiceShape.jp</h4>
+                    <p data-lang="ja">最先端の音声認識技術で、音声を視覚的に理解する新しい体験を提供します。</p>
+                    <p data-lang="en" style="display: none;">Cutting-edge speech recognition technology provides a new experience for visually understanding audio.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4 data-lang="ja">サポート</h4>
+                    <h4 data-lang="en" style="display: none;">Support</h4>
+                    <ul>
+                        <li><a href="#" data-lang="ja">ヘルプセンター</a></li>
+                        <li><a href="#" data-lang="en" style="display: none;">Help Center</a></li>
+                        <li><a href="#" data-lang="ja">利用規約</a></li>
+                        <li><a href="#" data-lang="en" style="display: none;">Terms of Service</a></li>
+                        <li><a href="#" data-lang="ja">プライバシーポリシー</a></li>
+                        <li><a href="#" data-lang="en" style="display: none;">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4 data-lang="ja">連絡先</h4>
+                    <h4 data-lang="en" style="display: none;">Contact</h4>
+                    <p data-lang="ja">メール: support@voiceshape.jp</p>
+                    <p data-lang="en" style="display: none;">Email: support@voiceshape.jp</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2024 VoiceShape.jp. All rights reserved.</p>
+                <p data-lang="ja">アップロードされたファイルは24時間後に自動削除されます。</p>
+                <p data-lang="en" style="display: none;">Uploaded files are automatically deleted after 24 hours.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
