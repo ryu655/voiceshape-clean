@@ -7,7 +7,7 @@ import time
 
 # CPU専用（GPUなくても100%動く！）
 torch.set_num_threads(4)
-model = whisper.load_model("base", device="cpu")
+model = whisper.load_model("base", compute_type="int8")
 
 def transcribe_local(filepath):
     print(f"【Whisper処理開始】{filepath}")
