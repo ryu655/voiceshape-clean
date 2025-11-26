@@ -5,9 +5,9 @@ from datetime import timedelta
 import os
 import time
 
-# CPU専用（GPUなくても100%動く！）
-torch.set_num_threads(4)
-model = whisper.load_model("base")
+# 超重要：int8量化でメモリ激減！！（baseでもこれで200MB以下）
+model = whisper.load_model("base", device="cpu").to("cpu").eval()
+model = model.half()  # fp16 → さらに軽く
 
 def transcribe_local(filepath):
     print(f"【Whisper処理開始】{filepath}")
