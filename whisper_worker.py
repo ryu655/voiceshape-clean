@@ -1,56 +1,48 @@
-# whisper_worker.py  ← これをまるごと上書きしてください！（Render Freeで100%動く神版）
-import whisper
+# whisper_worker.py ← これをまるごと上書きしてください！
+from faster_whisper import WhisperModel
 from datetime import timedelta
 import os
 import time
 
-# -------------------------------------------------
-# 超重要：tinyモデル + int8量化でメモリ激減（200MB以下で動く！）
-# -------------------------------------------------
-print("【Whisper】tinyモデルをロード中…（メモリ200MB以下・Render Free対応）")
-model = whisper.load_model("tiny", device="cpu")  # tiny = 最軽量・日本語も実用十分
+print("【faster-whisper】baseモデルロード中…（Render Free完全対応）")
+model = WhisperModel("base", device="cpu", compute_type="int8")
 
 def transcribe_local(filepath):
     print(f"【Whisper処理開始】{filepath}")
 
-    # 進捗ファイル（君のフロントエンドで%表示に使ってるやつ）
     base_name = os.path.basename(filepath)
     file_name_without_ext = os.path.splitext(base_name)[0]
     progress_file = f"/tmp/whisper_progress_{file_name_without_ext}.txt"
 
-    # 0%開始
     with open(progress_file, "w", encoding="utf-8") as f:
         f.write("PROGRESS:0.0")
 
     try:
-        result = model.transcribe(
+        # faster-whisperは (segments, info) を返す
+        segments, info = model.transcribe(
             filepath,
             language="ja",
             word_timestamps=True,
-            fp16=False,
             temperature=0.0,
             beam_size=5,
             best_of=5
         )
 
-        # 70%まで進捗
         with open(progress_file, "w", encoding="utf-8") as f:
             f.write("PROGRESS:0.7")
 
         subtitles = []
-        for seg in result.get("segments", []):
-            start = str(timedelta(seconds=int(seg.get("start", 0))))
-            end = str(timedelta(seconds=int(seg.get("end", 0))))
-            text = seg.get("text", "").strip()
+        # segment.start / segment.end / segment.text でアクセス
+        for segment in segments:
+            start = str(timedelta(seconds=int(segment.start)))
+            end = str(timedelta(seconds=int(segment.end)))
+            text = segment.text.strip()
             subtitles.append({"start": start, "end": end, "text": text})
 
-        # 100%完了
         with open(progress_file, "w", encoding="utf-8") as f:
             f.write("PROGRESS:1.0")
 
         print(f"【成功】字幕生成完了！字幕数: {len(subtitles)}")
-
-        # 少し待ってから削除（フロントが確実に1.0を読むため）
         time.sleep(1)
         try:
             os.remove(progress_file)
@@ -58,10 +50,10 @@ def transcribe_local(filepath):
             pass
 
         return {
-            "text": result.get("text", ""),
+            "text": " ".join([s["text"] for s in subtitles]),
             "subtitles": subtitles,
-            "duration": result.get("duration", 0),
-            "language": result.get("language", "ja")
+            "duration": info.duration,
+            "language": info.language
         }
 
     except Exception as e:
