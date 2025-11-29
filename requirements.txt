@@ -3,3 +3,4 @@ flask-cors==4.0.1
 faster-whisper==1.0.3
 librosa==0.10.1
 tqdm==4.66.5
+gunicorn==22.0.0  # Render本番推奨（追加）
