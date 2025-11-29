@@ -1,4 +1,4 @@
-# app.py ← これにまるごと置き換えて！
+# app.py ← これにまるごと置き換えて！（Render Free + RunPod large-v3 完成版）
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import os
@@ -6,14 +6,17 @@ import uuid
 import threading
 import json
 import librosa
-from whisper_worker import transcribe_local
+import requests
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.getenv("SECRET_KEY", "voiceshape-super-secret-2025")
 CORS(app)
 
-UPLOAD_FOLDER = "static/uploads"
+UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# ←←← ここにRunPodのURLを埋めた！！！
+RUNPOD_URL = "https://o9j5l7vb4r8mpf-8000.proxy.runpod.net/transcribe"
 
 
 @app.route("/")
