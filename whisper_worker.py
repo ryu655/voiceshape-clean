@@ -28,7 +28,7 @@ def transcribe_local(filepath):
             best_of=5
         )
 
-　　　　　segments = list(segments)   # ← これだけ追加して！！！
+        segments = list(segments)   # ← これだけ追加して！！！
 
         with open(progress_file, "w", encoding="utf-8") as f:
             f.write("PROGRESS:0.7")
