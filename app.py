@@ -17,7 +17,7 @@ UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # ここにRunPodのlarge-v3 URLを埋め込み済み！
-RUNPOD_URL = "https://o9j5l7vb4r8mpf-8000.proxy.runpod.net/transcribe"
+RUNPOD_URL = "https://7xeggmwut93rdo-8000.proxy.runpod.net/transcribe"
 
 
 @app.route("/")
