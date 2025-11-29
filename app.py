@@ -1,4 +1,4 @@
-# app.py ← これにまるごと置き換えて！（Render Free + RunPod large-v3 完成版）
+# app.py ← これにまるごと置き換えてください！（Render Free + RunPod large-v3 完全版）
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import os
@@ -12,10 +12,11 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = os.getenv("SECRET_KEY", "voiceshape-super-secret-2025")
 CORS(app)
 
+# Render Freeでも再起動後に残る場所
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ←←← ここにRunPodのURLを埋めた！！！
+# ここにRunPodのlarge-v3 URLを埋め込み済み！
 RUNPOD_URL = "https://o9j5l7vb4r8mpf-8000.proxy.runpod.net/transcribe"
 
 
@@ -38,22 +39,15 @@ def upload():
     file.save(filepath)
 
     try:
-        duration = librosa.get_duration(path=filepath)  # 警告消し！
+        duration = librosa.get_duration(path=filepath)
         print(f"【音声長さ】{duration:.1f}秒")
     except Exception as e:
         print(f"長さ取得エラー: {e}")
         duration = 999
 
-    if duration <= 300:
-        threading.Thread(target=process_audio, args=(file_id,), daemon=True).start()
-        return jsonify({"need_payment": False, "file_id": file_id})
-    else:
-        return jsonify({
-            "need_payment": True,
-            "file_id": file_id,
-            "duration": round(duration, 1),
-            "message": "5分を超えています"
-        })
+    # 無料でRunPod large-v3爆速処理開始！
+    threading.Thread(target=process_audio, args=(file_id,), daemon=True).start()
+    return jsonify({"need_payment": False, "file_id": file_id})
 
 
 @app.route("/pay", methods=["POST"])
@@ -68,23 +62,27 @@ def pay():
 def process_audio(file_id):
     filepath = os.path.join(UPLOAD_FOLDER, file_id)
     try:
-        print(f"【Whisper処理開始】{file_id}")
-        result = transcribe_local(filepath, file_id)  # file_idも渡す！
+        print(f"RunPod large-v3に送信中… {file_id}")
+        with open(filepath, "rb") as f:
+            files = {"file": (file_id, f)}
+            response = requests.post(RUNPOD_URL, files=files, timeout=3600)  # 1時間まで待つ
 
+        result = response.json()
+        print(f"RunPodから結果受信！字幕数: {len(result.get('subtitles', []))}")
+
+        # Render側に結果保存（表示用）
         result_path = filepath + ".json"
         with open(result_path, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
 
-        print(f"【成功】{file_id} の処理完了！字幕数: {len(result.get('subtitles', []))}")
-
     except Exception as e:
-        print(f"【失敗】{file_id}: {e}")
+        print(f"【RunPod失敗】{e}")
         error_result = {"error": str(e), "subtitles": []}
         with open(filepath + ".json", "w", encoding="utf-8") as f:
             json.dump(error_result, f, ensure_ascii=False)
 
 
-# これが最重要！無限ループ完全撲滅ルート
+# 無限ループ・404完全撲滅ルート
 @app.route("/result/<file_id>")
 def get_result(file_id):
     json_path = os.path.join(UPLOAD_FOLDER, file_id + ".json")
@@ -94,14 +92,15 @@ def get_result(file_id):
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             return jsonify({"status": "completed", "data": data})
-        except:
+        except Exception as e:
+            print(f"【JSON読み込み失敗】{e}")
             return jsonify({"status": "error", "message": "結果読み込み失敗"}), 500
 
-    # まだ処理中（元ファイルはある）
+    # まだ処理中
     if os.path.exists(os.path.join(UPLOAD_FOLDER, file_id)):
         return jsonify({"status": "processing", "progress": 0})
 
-    return jsonify({"status": "error", "message": "ファイルが見つかりません"}), 404
+    return jsonify({"status": "not_found", "message": "ファイルが見つかりません"}), 404
 
 
 if __name__ == "__main__":
